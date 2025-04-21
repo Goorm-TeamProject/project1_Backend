@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.3'  // 현재 안정화 버전
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.3'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'com.eouil.bank'
@@ -14,20 +14,26 @@ java {
 }
 
 configurations {
+    // 개발 프로필에서만 사용하는 의존성 분리
+    developmentOnly
+    // annotationProcessor가 compileOnly로 확장
     compileOnly {
         extendsFrom annotationProcessor
+    }
+    // runtimeClasspath에 developmentOnly 포함
+    runtimeClasspath {
+        extendsFrom developmentOnly
     }
 }
 
 configurations.all {
     resolutionStrategy.eachDependency { details ->
         if (details.requested.group == 'io.opentelemetry' &&
-            !details.requested.name.contains('incubator')) {
+                !details.requested.name.contains('incubator')) {
             details.useVersion '1.49.0'
         }
-
         if (details.requested.group == 'io.opentelemetry.instrumentation' &&
-            details.requested.name == 'opentelemetry-spring-boot-starter') {
+                details.requested.name == 'opentelemetry-spring-boot-starter') {
             details.useVersion '2.14.0'
         }
     }
@@ -43,29 +49,30 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-security' // encoder 암호화용
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
-    // DB
-    implementation 'com.mysql:mysql-connector-j:8.0.33'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    implementation 'com.h2database:h2' // 개발용
+    // 운영(MySQL) 드라이버만 런타임에
+    runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
+
+    // 개발용(H2) — prod 빌드엔 포함되지 않음
+    developmentOnly 'com.h2database:h2:2.1.214'
 
     // Validation & JWT
     implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
-    implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final' // validation
+    implementation 'org.hibernate.validator:hibernate-validator:6.2.5.Final'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    // dotenv 환경변수 적용
+    // dotenv
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // OpenTelemetry (Core + Spring Boot Starter) 개발용 비활성화
+    // OpenTelemetry
     implementation 'io.opentelemetry:opentelemetry-api:1.49.0'
     implementation 'io.opentelemetry:opentelemetry-sdk:1.49.0'
     implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.49.0'
