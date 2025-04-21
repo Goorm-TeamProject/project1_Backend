@@ -18,13 +18,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // JwtAuthenticationFilter를 Bean으로 등록
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(UserRepository userRepository) {
         return new JwtAuthenticationFilter(userRepository);
     }
 
-    // SecurityFilterChain 설정
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
@@ -41,16 +39,26 @@ public class SecurityConfig {
                     return config;
                 }))
                 .csrf(csrf -> csrf.disable())
+                // H2 콘솔이 <frame> 안에서 동작하도록 허용
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .formLogin(form -> form.disable())
                 .logout(logout -> logout.disable())
                 .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // CORS 프리플라이트
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 인증 없는 접근 허용
                         .requestMatchers(
-                                "/api/join", "/api/login", "/api/refresh", "/api/logout",
-                                "/api/accounts/**", "/api/transactions/**", "/api/health"
+                                "/api/join",
+                                "/api/login",
+                                "/api/refresh",
+                                "/api/logout",
+                                "/api/accounts/**",
+                                "/api/transactions/**",
+                                "/api/health",
+                                "/h2-console/**"         // 여기에 H2 콘솔 경로 추가
                         ).permitAll()
+                        // 그 외는 인증 필요
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -58,7 +66,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 비밀번호 인코더
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

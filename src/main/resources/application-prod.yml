@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://3.34.62.51:3306/bankapi?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: springuser
+    password: Goorm123!
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 3
@@ -13,9 +13,26 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
     show-sql: true
+
+  management:
+    tracing:
+      enabled: true
+
+  otel:
+    exporter:
+      otlp:
+        endpoint: http://otel-collector:4318
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.orm.jpa: DEBUG
+    org.springframework.boot.autoconfigure.orm.jpa: DEBUG

@@ -65,7 +65,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    // OpenTelemetry (Core + Spring Boot Starter)
+    // OpenTelemetry (Core + Spring Boot Starter) 개발용 비활성화
     implementation 'io.opentelemetry:opentelemetry-api:1.49.0'
     implementation 'io.opentelemetry:opentelemetry-sdk:1.49.0'
     implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.49.0'
